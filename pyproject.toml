@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chess-gpt"
+version = "0.1.0"
+description = "Un GPT a nivel de caracteres que aprendió ajedrez leyendo partidas de Lichess"
+requires-python = ">=3.10"
+dependencies = [
+    "torch",
+    "chess>=1.10",
+    "flask>=3.0",
+    "numpy",
+    "zstandard",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+chess_gpt = ["web/static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

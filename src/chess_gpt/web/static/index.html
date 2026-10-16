@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chess GPT</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main class="app">
+    <section class="tablero-wrap">
+      <div id="tablero" class="tablero" role="grid" aria-label="Chess board"></div>
+      <p id="estado" class="estado" aria-live="polite">Loading…</p>
+    </section>
+
+    <aside class="panel">
+      <header>
+        <h1>Chess GPT</h1>
+        <p id="modelo" class="sub"></p>
+      </header>
+
+      <div class="controles">
+        <div class="fila">
+          <button id="nueva-w" type="button">New game as White</button>
+          <button id="nueva-b" type="button">New game as Black</button>
+        </div>
+        <div class="fila">
+          <label for="modo">How the model picks
+            <select id="modo">
+              <option value="mejor">Most likely move</option>
+              <option value="muestrear">Sample by probability</option>
+            </select>
+          </label>
+          <label for="temp">Temperature <output id="temp-val">1.0</output>
+            <input id="temp" type="range" min="0.1" max="2" step="0.1" value="1">
+          </label>
+        </div>
+        <button id="deshacer" type="button" class="secundario">Undo my last move</button>
+      </div>
+
+      <section>
+        <h2>What the model was thinking</h2>
+        <div id="analisis" class="analisis">
+          <p class="vacio">Once the model moves, you’ll see its top 5 choices here and what it would have written on its own.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Moves</h2>
+        <ol id="jugadas" class="jugadas"></ol>
+        <p id="error" class="error" hidden></p>
+      </section>
+    </aside>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>

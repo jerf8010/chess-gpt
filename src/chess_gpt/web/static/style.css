@@ -1,0 +1,108 @@
+/* Layout: tablero a la izquierda, panel de análisis a la derecha; en pantallas angostas se apilan */
+:root {
+  --bg: #f4f2ee; --panel: #ffffff; --ink: #1d1f24; --muted: #646a73; --line: #dedad2;
+  --clara: #ece4d4; --oscura: #9b7653; --marca: rgba(255, 196, 0, .45); --seleccion: rgba(46, 110, 220, .45);
+  --jaque: rgba(214, 48, 49, .55); --acento: #2e6edc; --ok: #1f8a4c; --mal: #c0392b; --barra: #2e6edc;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15171b; --panel: #1e2127; --ink: #e8e9ec; --muted: #9aa0aa; --line: #30343c;
+    --clara: #c9b998; --oscura: #7a5a3e; --acento: #6b9cff; --ok: #3cc47a; --mal: #ff6b5e; --barra: #6b9cff;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans); }
+
+.app {
+  max-width: 1120px; margin: 0 auto; padding: 24px 16px;
+  display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; align-items: start;
+}
+@media (max-width: 860px) { .app { grid-template-columns: 1fr; } }
+
+/* ---------------- tablero ---------------- */
+.tablero-wrap { display: flex; flex-direction: column; gap: 12px; }
+.tablero {
+  display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);  /* 🆕 filas iguales */
+  width: 100%; max-width: 640px; aspect-ratio: 1; container-type: inline-size;                /* 🆕 permite usar cqw */
+  border-radius: 6px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.18);
+}
+.casilla {
+  position: relative; border: 0; border-radius: 0; padding: 0; margin: 0; cursor: pointer; color: inherit;
+  display: flex; align-items: center; justify-content: center; font: inherit;
+  min-width: 0; min-height: 0; overflow: hidden;      /* 🆕 el contenido nunca estira la casilla */
+}
+.casilla.clara { background: var(--clara); }
+.casilla.oscura { background: var(--oscura); }
+.casilla.ultima::before, .casilla.sel::before, .casilla.jaque::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+}
+.casilla.ultima::before { background: var(--marca); }
+.casilla.sel::before { background: var(--seleccion); }
+.casilla.jaque::before { background: radial-gradient(circle, var(--jaque) 0 55%, transparent 75%); }
+.casilla.destino::after {
+  content: ""; position: absolute; width: 28%; height: 28%; border-radius: 50%;
+  background: rgba(0, 0, 0, .22); pointer-events: none;
+}
+.casilla.destino.ocupada::after { width: 86%; height: 86%; background: transparent; border: 5px solid rgba(0,0,0,.22); }
+.casilla:focus-visible { outline: 3px solid var(--acento); outline-offset: -3px; z-index: 1; }
+
+/* 9cqw = 9% del ancho del tablero ≈ 72% de una casilla, sin importar el tamaño de la ventana */
+.pieza { position: relative; z-index: 1; font-size: 9cqw; line-height: 1; user-select: none; }   /* 🆕 */
+.pieza.blanca { color: #fbfbf8; text-shadow: 0 0 2px #000, 0 0 1px #000, 0 1px 1px #000; }
+.pieza.negra  { color: #17181b; text-shadow: 0 0 1px rgba(255,255,255,.35); }
+
+.coord { position: absolute; font: 600 11px var(--sans); pointer-events: none; opacity: .8; }
+.coord.fila-n { top: 3px; left: 4px; }
+.coord.col-l  { bottom: 2px; right: 4px; }
+.casilla.clara .coord { color: var(--oscura); }
+.casilla.oscura .coord { color: var(--clara); }
+
+.estado { margin: 0; font-weight: 600; font-size: 17px; min-height: 1.5em; }
+.estado.pensando { color: var(--muted); }
+
+/* ---------------- panel ---------------- */
+.panel {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: 18px; display: flex; flex-direction: column; gap: 20px;
+}
+h1 { margin: 0; font-size: 22px; }
+h2 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.sub { margin: 2px 0 0; color: var(--muted); font: 12px var(--mono); }
+
+.controles { display: flex; flex-direction: column; gap: 12px; }
+.fila { display: flex; flex-wrap: wrap; gap: 10px; }
+.fila > * { flex: 1 1 140px; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+select, input[type=range] { width: 100%; }
+select { padding: 6px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; }
+output { color: var(--ink); font-family: var(--mono); }
+.panel button {
+  padding: 9px 12px; border-radius: 7px; border: 1px solid var(--acento); background: var(--acento);
+  color: #fff; font: 600 14px var(--sans); cursor: pointer;
+}
+.panel button.secundario { background: transparent; color: var(--acento); }
+.panel button:disabled { opacity: .5; cursor: progress; }
+.casilla:disabled { cursor: default; }
+
+.analisis { display: flex; flex-direction: column; gap: 10px; font-size: 14px; }
+.vacio { margin: 0; color: var(--muted); }
+.barras { display: flex; flex-direction: column; gap: 5px; }
+.barra { display: grid; grid-template-columns: 64px 1fr 52px; gap: 8px; align-items: center; font-family: var(--mono); font-size: 13px; }
+.barra .pista { display: block; height: 10px; border-radius: 5px; background: var(--line); overflow: hidden; }   /* 🆕 display: block */
+.barra .relleno { display: block; height: 100%; background: var(--barra); }   /* 🆕 un <span> necesita display:block para respetar width/height */
+.barra.elegida { font-weight: 700; }
+.barra .pct { text-align: right; color: var(--muted); }
+.libre { margin: 0; padding: 10px 12px; border-radius: 8px; background: var(--bg); }
+.libre code { font-family: var(--mono); font-weight: 700; }
+.libre .ok { color: var(--ok); } .libre .mal { color: var(--mal); }
+.nota { margin: 0; color: var(--muted); font-size: 12.5px; }
+
+.jugadas {
+  margin: 0; padding: 0 0 0 28px; max-height: 240px; overflow-y: auto;
+  font: 14px/1.8 var(--mono); columns: 2; column-gap: 16px;
+}
+.jugadas li::marker { color: var(--muted); }
+.jugadas .ult { background: var(--marca); border-radius: 3px; padding: 0 2px; }
+.error { margin: 8px 0 0; color: var(--mal); font-size: 13px; }
