@@ -176,29 +176,4 @@ checkpoint in `models/` — either downloaded from this repository's
 `scripts/play.py` defaults to `models/chess_gpt_exp5.pt`; point it at another checkpoint
 with `--checkpoint`.
 
-### Publishing a checkpoint as a Release asset
 
-Large binary files like `.pt` checkpoints shouldn't go into regular git commits (they'd
-bloat the repo's history forever), but GitHub Releases let you attach arbitrary files
-(up to 2 GB each on github.com) without that cost — they're stored separately from the
-git history.
-
-**Via the web UI:**
-1. Push your code to GitHub first (`git init`, commit, `git remote add origin ...`,
-   `git push`).
-2. Go to your repo → **Releases** (right sidebar) → **Draft a new release**.
-3. Pick or create a tag (e.g. `v0.1.0`), add a title/description.
-4. Drag and drop the `.pt` file(s) into the **"Attach binaries"** box at the bottom.
-5. Click **Publish release**. The file is now downloadable at a stable URL under
-   `https://github.com/<user>/<repo>/releases/download/<tag>/<filename>`.
-
-**Via the `gh` CLI** (faster once the repo is pushed):
-```bash
-gh release create v0.1.0 models/chess_gpt_exp5.pt \
-  --title "exp5 checkpoint" \
-  --notes "Best-performing checkpoint: 256-dim, 6 heads, 6 layers."
-```
-You can attach more files to an existing release later with:
-```bash
-gh release upload v0.1.0 models/chess_gpt_exp4.pt
-```
